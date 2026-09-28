@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#0f1015"
+        android:pathData="M8,0h32c4.4,0 8,3.6 8,8v32c0,4.4 -3.6,8 -8,8H8c-4.4,0 -8,-3.6 -8,-8V8c0,-4.4 3.6,-8 8,-8z"/>
+    <!-- Pill Battery Shape -->
+    <path
+        android:fillColor="#9ecaff"
+        android:pathData="M14,18h18c2.2,0 4,1.8 4,4v4c0,2.2 -1.8,4 -4,4H14c-2.2,0 -4,-1.8 -4,-4v-4c0,-2.2 1.8,-4 4,-4z M37,21.5h1.5c0.8,0 1.5,0.7 1.5,1.5v2c0,0.8 -0.7,1.5 -1.5,1.5H37v-5z"/>
+    <!-- Signal Bars inside -->
+    <path
+        android:fillColor="#00325b"
+        android:pathData="M16,26h2v-2h-2v2z M20,26h2v-4h-2v4z M24,26h2v-6h-2v6z M28,26h2v-8h-2v8z"/>
+</vector>

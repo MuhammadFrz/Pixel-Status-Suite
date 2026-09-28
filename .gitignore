@@ -1,0 +1,12 @@
+# Build outputs & caches
+bin/
+build/
+*.class
+*.dex
+*.odex
+*.oat
+.gradle/
+local.properties
+*.log
+.idea/
+*.iml
