@@ -1,4 +1,4 @@
-# Pixel Status Suite
+# Pixel Status Suite (Next-Gen Google Pixel & Android 17 Iconography)
 
 [![Android](https://img.shields.io/badge/Android-12%20--%2014-brightgreen.svg?logo=android)](https://android.com)
 [![Magisk](https://img.shields.io/badge/Magisk-v24%2B-blue.svg?logo=magisk)](https://github.com/topjohnwu/Magisk)
@@ -7,69 +7,54 @@
 
 **Pixel Status Suite** is a unified, standalone status bar icon engine and management application for AOSP and LineageOS devices (tested on Android 14 / LineageOS 21).
 
+All status bar vectors, dimensions, and iconography in this suite are **100% authentic Google Pixel system assets**, extracted directly from official Google Pixel factory images and decompiled `SystemUIGoogle.apk` / `framework-res.apk`.
+
 ---
 
-## Visual Verification Proof
+## Live Status Bar Proof (Android 17 / Next-Gen Pixel)
 
 <p align="center">
-  <img src="screenshots/side_by_side.png" width="750" alt="Verification Proof" />
+  <img src="screenshots/android17_statusbar_zoom.png" width="700" alt="Pixel Android 17 Status Bar Zoom" />
 </p>
 
 ---
 
-## App Interface Preview
+## Iconography Highlights
 
-<p align="center">
-  <img src="screenshots/app_preview.png" width="380" alt="Pixel Status Suite App" />
-</p>
+1. **4-Segment Cellular Signal (`ııll`)**:
+   * Exact rounded vertical pill bars straight out of Google's `com.android.systemui.statusbar.pipeline.mobile.ui.compose.MobileIconKt` specification.
+   * Heights: `5.0sp`, `7.5sp`, `10.0sp`, `12.0sp`. Width: `2.5sp`, Gap: `2.0sp`.
+   * Unlit bars rendered with Google's authentic `fillAlpha="0.45"`.
 
----
+2. **Segmented Wi-Fi Arcs**:
+   * Authentic curved arcs with solid bottom dot extracted directly from `SystemUIGoogle.apk` (`ic_wifi_0.xml` through `ic_wifi_3.xml`).
 
-## Features
+3. **Android 17 Pill Battery Meter (`[ 94 ] ⚡`)**:
+   * Full capsule pill container with authentic Google Android Green (`#3DDC84`) during charging.
+   * Bold percentage text inside the pill.
+   * High-contrast companion lightning bolt attached on the outside right of the pill.
+   * Automatic theme adaptation (Google Red `<= 15%`, neutral white/dark mode tinting when discharging).
 
-- **100% Standalone - Zero External Dependencies**: Operates completely independently without Iconify or heavy third-party framework injectors.
-- **Stock Google Pixel Icon Set**:
-  - **Pixel Wi-Fi**: Authentic Google Pixel Wi-Fi vectors with 5 signal levels (0 through 4).
-  - **Pixel 4-Bar Cellular Signal**: Authentic Google Pixel 4-bar solid triangle vectors.
-  - **Pixel SystemUI Icons**: Clean silent bell, haptic vibrate, dual-bell alarm clock, rounded VPN key, and DND circle.
-- **Circle Ring Battery Meter with Adjacent Percentage**:
-  - Clean circular donut ring battery meter matching the user specification.
-  - Percentage text placed directly next to the icon (`⭕ XX%`).
-  - Charging bolt centered inside the circle ring during USB/AC charging.
-  - Sized with square bounding box (`15.5dp x 15.5dp`) to preserve circular geometry without rectangular distortion.
-- **Boot Persistence**:
-  - Includes automated boot service script (`/data/adb/service.d/pixel_icons_boot.sh`) to prevent LineageOS from reverting to default battery or signal icons upon reboot.
-- **Pixel Status Suite Management App**:
-  - Live real-time status bar scaling preview.
-  - Visual active icon gallery.
-  - Interactive sliders to dynamically adjust icon scale, battery ring size, and cluster padding.
+4. **Complete Google Pixel SystemUI Series**:
+   * 33 authentic status bar vector XMLs pulled directly from Pixel `SystemUIGoogle.apk` (Airplane Mode, Dual-Bell Alarm, Roaming, DND, Bluetooth, Hotspot, VPN, Silent, Vibrate, etc.).
 
 ---
 
-## Installation
+## Downloads & Releases
 
-### Via Magisk:
-1. Download `Pixel-Status-Suite-Magisk.zip` from the [Releases](releases/) folder.
-2. Flash the ZIP in Magisk Manager.
-3. Reboot your device.
-4. Open the **Pixel Status Suite** app to preview and adjust icon sizing.
+- **Flashable Magisk Module**: [`releases/Pixel-Status-Suite-Magisk.zip`](releases/Pixel-Status-Suite-Magisk.zip)
+- **Standalone Manager APK**: [`releases/PixelStatusSuite.apk`](releases/PixelStatusSuite.apk)
 
 ---
 
-## Project Structure
+## Technical Architecture
 
-```
-├── app/                  # Full source code for Pixel Status Suite management app
-├── magisk-module/        # Flashable Magisk module structure
-│   ├── system/product/overlay/  # Fabricated RRO overlay APKs
-│   └── system/priv-app/         # Priv-app APK deployment
-├── releases/             # Pre-built flashable ZIP and standalone APK
-├── screenshots/          # Side-by-side verification and UI screenshots
-└── scripts/              # Build, compile, and deployment automation scripts
-```
+* **Overlay Runtime (RRO)**: `PixelSignalOverlay.apk`, `PixelWifiOverlay.apk`, `PixelSystemUIOverlay.apk` target `android` and `com.android.systemui` with priority `9999`.
+* **SystemUI Hook (LSPosed / Zygisk)**: Injects `CapsuleBatteryDrawable` into `BatteryMeterView` without breaking LineageOS battery callbacks or crashing SystemUI.
 
 ---
 
 ## License
 
-MIT License. Designed and crafted for custom AOSP / LineageOS devices.
+MIT License. Authentic Google Pixel vector assets and iconography copyright Google LLC.
+

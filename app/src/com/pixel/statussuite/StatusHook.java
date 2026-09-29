@@ -32,14 +32,25 @@ public class StatusHook implements IXposedHookLoadPackage {
             new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    Object view = param.thisObject;
+                    View view = (View) param.thisObject;
                     int level = (int) param.args[0];
                     boolean plugged = (boolean) param.args[1];
 
                     CapsuleBatteryDrawable custom = sCustomBatteries.get(view);
                     if (custom != null) {
+                        int oldW = custom.getIntrinsicWidth();
                         custom.setBatteryLevel(level);
                         custom.setCharging(plugged);
+                        ImageView iconView = (ImageView) XposedHelpers.getObjectField(view, "mBatteryIconView");
+                        if (iconView != null && oldW != custom.getIntrinsicWidth()) {
+                            ViewGroup.LayoutParams lp = iconView.getLayoutParams();
+                            if (lp != null) {
+                                lp.width = custom.getIntrinsicWidth();
+                                lp.height = custom.getIntrinsicHeight();
+                                iconView.setLayoutParams(lp);
+                                view.requestLayout();
+                            }
+                        }
                     }
                 }
             }
@@ -57,20 +68,20 @@ public class StatusHook implements IXposedHookLoadPackage {
                     ImageView iconView = (ImageView) XposedHelpers.getObjectField(view, "mBatteryIconView");
                     TextView percentView = (TextView) XposedHelpers.getObjectField(view, "mBatteryPercentView");
 
-                    // Only apply custom capsule hook if LineageOS style is NOT circle
-                    int batteryStyle = 1;
+                    // Check if LineageOS style is Circle (1)
+                    int batteryStyle = 0;
                     try {
                         Object cr = XposedHelpers.callMethod(context, "getContentResolver");
                         Class<?> settingsSystem = XposedHelpers.findClass("android.provider.Settings$System", lpparam.classLoader);
-                        batteryStyle = (Integer) XposedHelpers.callStaticMethod(settingsSystem, "getInt", cr, "status_bar_battery_style", 1);
+                        batteryStyle = (Integer) XposedHelpers.callStaticMethod(settingsSystem, "getInt", cr, "status_bar_battery_style", 0);
                     } catch (Throwable ignored) {}
 
                     if (batteryStyle == 1) {
-                        // Native Circle Ring is active - DO NOT override or touch views
+                        // Native Circle Ring is active - DO NOT override
                         return;
                     }
 
-                    // Hide separate percent view if drawing inside
+                    // Hide separate percent view since percentage is rendered inside the pill
                     if (percentView != null) {
                         percentView.setVisibility(View.GONE);
                     }
@@ -130,15 +141,14 @@ public class StatusHook implements IXposedHookLoadPackage {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         View view = (View) param.thisObject;
                         Context context = view.getContext();
-                        int batteryStyle = 1;
+                        int batteryStyle = 0;
                         try {
                             Object cr = XposedHelpers.callMethod(context, "getContentResolver");
                             Class<?> settingsSystem = XposedHelpers.findClass("android.provider.Settings$System", lpparam.classLoader);
-                            batteryStyle = (Integer) XposedHelpers.callStaticMethod(settingsSystem, "getInt", cr, "status_bar_battery_style", 1);
+                            batteryStyle = (Integer) XposedHelpers.callStaticMethod(settingsSystem, "getInt", cr, "status_bar_battery_style", 0);
                         } catch (Throwable ignored) {}
 
                         if (batteryStyle == 1) {
-                            // Do not hide percent in circle mode
                             return;
                         }
 

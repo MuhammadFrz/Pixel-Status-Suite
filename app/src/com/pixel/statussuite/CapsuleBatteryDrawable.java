@@ -5,176 +5,173 @@ import android.graphics.*;
 import android.graphics.drawable.Drawable;
 
 public class CapsuleBatteryDrawable extends Drawable {
-    private int mLevel = 67;
-    private boolean mCharging = false;
-    private int mWidth = 26; // dp
-    private int mHeight = 13; // dp
+    private int mLevel = 94;
+    private boolean mCharging = true;
     private float mDensity = 2.0f;
 
-    private final Paint mOutlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // Dimensions in dp
+    private static final float HEIGHT_DP = 13.0f;
+    private static final float PILL_PAD_H_DP = 5.0f;
+    private static final float BOLT_GAP_DP = 2.5f;
+    private static final float BOLT_WIDTH_DP = 6.0f;
+    private static final float BOLT_HEIGHT_DP = 11.0f;
+
+    private final Paint mPillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mBoltPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    private final RectF mCapsuleRect = new RectF();
-    private final RectF mCapRect = new RectF();
-    private final RectF mFillRect = new RectF();
+    private final RectF mPillRect = new RectF();
     private final Path mBoltPath = new Path();
 
+    // Theme colors
     private int mForegroundColor = 0xFFFFFFFF;
     private int mBackgroundColor = 0x4DFFFFFF;
+
+    // Google Android 17 / Pixel Green (#3DDC84)
+    public static final int GOOGLE_GREEN = 0xFF3DDC84;
+    public static final int GOOGLE_RED = 0xFFE53935;
 
     public CapsuleBatteryDrawable(Context context) {
         if (context != null && context.getResources() != null && context.getResources().getDisplayMetrics() != null) {
             mDensity = context.getResources().getDisplayMetrics().density;
         }
 
-        mOutlinePaint.setStyle(Paint.Style.STROKE);
-        mOutlinePaint.setColor(mForegroundColor);
-        mOutlinePaint.setStrokeWidth(1.2f * mDensity);
-
-        mFillPaint.setStyle(Paint.Style.FILL);
-        mFillPaint.setColor(mForegroundColor);
+        mPillPaint.setStyle(Paint.Style.FILL);
 
         mTextPaint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
         mTextPaint.setTextAlign(Paint.Align.CENTER);
-        mTextPaint.setColor(0xFF000000);
 
         mBoltPaint.setStyle(Paint.Style.FILL);
-        mBoltPaint.setColor(0xFF000000);
 
-        setBounds(0, 0, getIntrinsicWidth(), getIntrinsicHeight());
+        updateBounds();
     }
 
     public void setBatteryLevel(int level) {
         mLevel = Math.max(0, Math.min(100, level));
+        updateBounds();
         invalidateSelf();
     }
 
     public void setCharging(boolean charging) {
         mCharging = charging;
+        updateBounds();
         invalidateSelf();
     }
 
     public void setColors(int fg, int bg) {
         mForegroundColor = fg;
         mBackgroundColor = bg;
-        mOutlinePaint.setColor(fg);
-        mFillPaint.setColor(fg);
         invalidateSelf();
     }
 
-    public void setDimensions(int wDp, int hDp) {
-        mWidth = wDp;
-        mHeight = hDp;
-        setBounds(0, 0, (int) (wDp * mDensity), (int) (hDp * mDensity));
-        invalidateSelf();
+    private float getPillWidthDp() {
+        if (mLevel >= 100) {
+            return 28.0f;
+        } else if (mLevel >= 10) {
+            return 24.5f;
+        } else {
+            return 19.0f;
+        }
+    }
+
+    private void updateBounds() {
+        setBounds(0, 0, getIntrinsicWidth(), getIntrinsicHeight());
     }
 
     @Override
     public int getIntrinsicWidth() {
-        return (int) (mWidth * mDensity);
+        float totalDp = getPillWidthDp();
+        if (mCharging) {
+            totalDp += BOLT_GAP_DP + BOLT_WIDTH_DP;
+        }
+        return (int) Math.ceil(totalDp * mDensity);
     }
 
     @Override
     public int getIntrinsicHeight() {
-        return (int) (mHeight * mDensity);
+        return (int) Math.ceil(HEIGHT_DP * mDensity);
     }
 
     @Override
     public void draw(Canvas canvas) {
-        Rect b = getBounds();
-        if (b.width() <= 0 || b.height() <= 0) {
-            b = new Rect(0, 0, getIntrinsicWidth(), getIntrinsicHeight());
-        }
+        float h = HEIGHT_DP * mDensity;
+        float pillW = getPillWidthDp() * mDensity;
+        float radius = h / 2.0f; // Perfect capsule roundness
 
-        float stroke = 1.2f * mDensity;
-        float halfStroke = stroke / 2.0f;
-        float capWidth = 1.8f * mDensity;
-        float capHeight = b.height() * 0.40f;
-        float radius = b.height() * 0.32f;
+        // 1. Determine Pill Color and Text Color
+        int pillColor;
+        int textColor;
+        int boltColor;
 
-        // Capsule body bounds
-        float bodyRight = b.right - capWidth - halfStroke;
-        float bodyLeft = b.left + halfStroke;
-        float bodyTop = b.top + halfStroke;
-        float bodyBottom = b.bottom - halfStroke;
-
-        mCapsuleRect.set(bodyLeft, bodyTop, bodyRight, bodyBottom);
-
-        // Terminal cap on right
-        float capTop = (b.top + b.bottom - capHeight) / 2.0f;
-        float capBottom = capTop + capHeight;
-        mCapRect.set(bodyRight, capTop, b.right - halfStroke, capBottom);
-
-        // 1. Draw outline capsule
-        mOutlinePaint.setColor(mForegroundColor);
-        canvas.drawRoundRect(mCapsuleRect, radius, radius, mOutlinePaint);
-
-        // Draw terminal cap
-        Paint capPaint = new Paint(mOutlinePaint);
-        capPaint.setStyle(Paint.Style.FILL);
-        canvas.drawRoundRect(mCapRect, capWidth / 2.0f, capWidth / 2.0f, capPaint);
-
-        // 2. Draw Horizontal Fill
-        float innerPadding = stroke + 0.8f * mDensity;
-        float fillLeft = bodyLeft + innerPadding;
-        float fillTop = bodyTop + innerPadding;
-        float fillMaxRight = bodyRight - innerPadding;
-        float fillBottom = bodyBottom - innerPadding;
-        float fillRadius = Math.max(1.0f, radius - innerPadding);
-
-        float fillWidth = (fillMaxRight - fillLeft) * (mLevel / 100.0f);
-        mFillRect.set(fillLeft, fillTop, fillLeft + fillWidth, fillBottom);
-
-        // Background fill tint (subtle 20% opacity)
-        Paint bgFill = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bgFill.setColor(mForegroundColor);
-        bgFill.setAlpha(40);
-        RectF totalFillRect = new RectF(fillLeft, fillTop, fillMaxRight, fillBottom);
-        canvas.drawRoundRect(totalFillRect, fillRadius, fillRadius, bgFill);
-
-        // Level fill
-        if (mLevel > 0) {
-            canvas.save();
-            canvas.clipRect(fillLeft, fillTop, fillLeft + fillWidth, fillBottom);
-            canvas.drawRoundRect(totalFillRect, fillRadius, fillRadius, mFillPaint);
-            canvas.restore();
-        }
-
-        // Contrast calculation based on theme
         int r = (mForegroundColor >> 16) & 0xFF;
         int g = (mForegroundColor >> 8) & 0xFF;
         int bCol = mForegroundColor & 0xFF;
-        boolean isFgDark = (r * 299 + g * 587 + bCol * 114) / 1000 < 128;
-        int contrastText = isFgDark ? 0xFFFFFFFF : 0xFF000000;
-        int emptyText = mForegroundColor;
+        boolean isDarkTheme = ((r * 299 + g * 587 + bCol * 114) / 1000) > 128; // Light text = Dark theme
 
-        // 3. Percentage Text or Charging Bolt
         if (mCharging) {
-            drawChargingBolt(canvas, mCapsuleRect.centerX(), mCapsuleRect.centerY(), b.height() * 0.65f, (mLevel >= 50) ? contrastText : emptyText);
+            // Authentic Pixel Android 17: Vibrant Google Android Green
+            pillColor = GOOGLE_GREEN;
+            textColor = 0xFF000000; // Bold black text inside green pill
+            boltColor = isDarkTheme ? 0xFFFFFFFF : 0xFF000000; // High contrast bolt next to pill
+        } else if (mLevel <= 15) {
+            pillColor = GOOGLE_RED;
+            textColor = 0xFFFFFFFF;
+            boltColor = mForegroundColor;
         } else {
-            float textSize = b.height() * 0.62f;
-            mTextPaint.setTextSize(textSize);
+            // Neutral pill matching current status bar theme
+            pillColor = mForegroundColor;
+            textColor = isDarkTheme ? 0xFF000000 : 0xFFFFFFFF;
+            boltColor = mForegroundColor;
+        }
 
-            int textColor = (mLevel >= 50) ? contrastText : emptyText;
-            mTextPaint.setColor(textColor);
+        // 2. Draw Pill Container
+        mPillRect.set(0, 0, pillW, h);
+        mPillPaint.setColor(pillColor);
+        canvas.drawRoundRect(mPillRect, radius, radius, mPillPaint);
 
-            Paint.FontMetrics fm = mTextPaint.getFontMetrics();
-            float textY = mCapsuleRect.centerY() - (fm.ascent + fm.descent) / 2.0f;
-            canvas.drawText(String.valueOf(mLevel), mCapsuleRect.centerX(), textY, mTextPaint);
+        // 3. Draw Percentage Text centered inside the pill
+        float textSize = h * 0.72f;
+        mTextPaint.setTextSize(textSize);
+        mTextPaint.setColor(textColor);
+
+        Paint.FontMetrics fm = mTextPaint.getFontMetrics();
+        float textY = (h / 2.0f) - (fm.ascent + fm.descent) / 2.0f;
+        canvas.drawText(String.valueOf(mLevel), pillW / 2.0f, textY, mTextPaint);
+
+        // 4. If Charging: Draw Lightning Bolt attached to the right of the pill
+        if (mCharging) {
+            float boltLeft = pillW + (BOLT_GAP_DP * mDensity);
+            float boltTop = (h - (BOLT_HEIGHT_DP * mDensity)) / 2.0f;
+            float boltW = BOLT_WIDTH_DP * mDensity;
+            float boltH = BOLT_HEIGHT_DP * mDensity;
+
+            drawGoogleBolt(canvas, boltLeft, boltTop, boltW, boltH, boltColor);
         }
     }
 
-    private void drawChargingBolt(Canvas canvas, float cx, float cy, float h, int color) {
+    /**
+     * Authentic Google Pixel lightning bolt from ic_battery_charging.xml
+     * Path: M11,20l4,-7.5h-2L13,7l-4,7.5h2z in 24x24 box
+     * Normalized: (x-7)/8, (y-7)/13
+     */
+    private void drawGoogleBolt(Canvas canvas, float left, float top, float width, float height, int color) {
         mBoltPath.reset();
-        float w = h * 0.55f;
-        mBoltPath.moveTo(cx + w * 0.1f, cy - h * 0.5f);
-        mBoltPath.lineTo(cx - w * 0.45f, cy + h * 0.05f);
-        mBoltPath.lineTo(cx - w * 0.05f, cy + h * 0.05f);
-        mBoltPath.lineTo(cx - w * 0.2f, cy + h * 0.5f);
-        mBoltPath.lineTo(cx + w * 0.45f, cy - h * 0.05f);
-        mBoltPath.lineTo(cx + w * 0.05f, cy - h * 0.05f);
+        // Exact proportion of Google's M11,20 l4,-7.5 h-2 L13,7 l-4,7.5 h2 z
+        // Points: (11,20) -> (15, 12.5) -> (13, 12.5) -> (13, 7) -> (9, 14.5) -> (11, 14.5) -> close
+        // In normalized [0, 1] relative to bounding box (width, height):
+        // (11-9)/6 = 0.33, (20-7)/13 = 1.0
+        // (15-9)/6 = 1.00, (12.5-7)/13 = 0.423
+        // (13-9)/6 = 0.67, (12.5-7)/13 = 0.423
+        // (13-9)/6 = 0.67, (7-7)/13 = 0.0
+        // (9-9)/6  = 0.00, (14.5-7)/13 = 0.577
+        // (11-9)/6 = 0.33, (14.5-7)/13 = 0.577
+
+        mBoltPath.moveTo(left + width * 0.33f, top + height * 1.00f);
+        mBoltPath.lineTo(left + width * 1.00f, top + height * 0.42f);
+        mBoltPath.lineTo(left + width * 0.66f, top + height * 0.42f);
+        mBoltPath.lineTo(left + width * 0.66f, top + height * 0.00f);
+        mBoltPath.lineTo(left + width * 0.00f, top + height * 0.58f);
+        mBoltPath.lineTo(left + width * 0.33f, top + height * 0.58f);
         mBoltPath.close();
 
         mBoltPaint.setColor(color);
@@ -183,14 +180,16 @@ public class CapsuleBatteryDrawable extends Drawable {
 
     @Override
     public void setAlpha(int alpha) {
-        mOutlinePaint.setAlpha(alpha);
-        mFillPaint.setAlpha(alpha);
+        mPillPaint.setAlpha(alpha);
+        mTextPaint.setAlpha(alpha);
+        mBoltPaint.setAlpha(alpha);
     }
 
     @Override
     public void setColorFilter(ColorFilter cf) {
-        mOutlinePaint.setColorFilter(cf);
-        mFillPaint.setColorFilter(cf);
+        mPillPaint.setColorFilter(cf);
+        mTextPaint.setColorFilter(cf);
+        mBoltPaint.setColorFilter(cf);
     }
 
     @Override
