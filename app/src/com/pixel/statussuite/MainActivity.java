@@ -36,10 +36,10 @@ public class MainActivity extends Activity {
                     try {
                         JSONObject obj = new JSONObject(jsonStr);
                         int iconScale = obj.optInt("iconScale", 100);
-                        int batWidth = obj.optInt("batWidth", 26);
-                        int batHeight = obj.optInt("batHeight", 13);
-                        int spacing = obj.optInt("spacing", 8);
-                        String batteryMode = obj.optString("batteryMode", "capsule");
+                        int batWidth = obj.optInt("batWidth", 16);
+                        int batHeight = obj.optInt("batHeight", 16);
+                        int spacing = obj.optInt("spacing", 6);
+                        String batteryMode = obj.optString("batteryMode", "circle");
 
                         String cmd = "sh /data/local/tmp/apply_status_config.sh " 
                             + iconScale + " " + batWidth + " " + batHeight + " " + spacing + " " + batteryMode;
