@@ -2,10 +2,16 @@
 set -e
 
 SCALE="${1:-100}"
-WIDTH="${2:-26}"
-HEIGHT="${3:-13}"
+WIDTH="${2:-16}"
+HEIGHT="${3:-16}"
 SPACING="${4:-8}"
-MODE="${5:-capsule}"
+MODE="${5:-circle}"
+
+# If circle mode, force square dimensions unless overridden
+if [ "$MODE" = "circle" ]; then
+    WIDTH="${2:-16}"
+    HEIGHT="$WIDTH"
+fi
 
 # Calculate icon size: default 17dp * scale / 100
 ICON_SIZE=$(( 17 * SCALE / 100 ))
@@ -42,15 +48,15 @@ cat << EOF > "$TMP/systemui/res/values/dimens.xml"
 </resources>
 EOF
 
-if [ "$MODE" = "capsule" ]; then
-    content insert --uri content://lineagesettings/system --bind name:s:status_bar_battery_style --bind value:i:0
-    content insert --uri content://lineagesettings/system --bind name:s:status_bar_show_battery_percent --bind value:i:1
+if [ "$MODE" = "circle" ]; then
+    content insert --uri content://lineagesettings/system --bind name:s:status_bar_battery_style --bind value:i:1
+    content insert --uri content://lineagesettings/system --bind name:s:status_bar_show_battery_percent --bind value:i:2
 elif [ "$MODE" = "portrait" ]; then
     content insert --uri content://lineagesettings/system --bind name:s:status_bar_battery_style --bind value:i:0
     content insert --uri content://lineagesettings/system --bind name:s:status_bar_show_battery_percent --bind value:i:2
-elif [ "$MODE" = "circle" ]; then
-    content insert --uri content://lineagesettings/system --bind name:s:status_bar_battery_style --bind value:i:1
-    content insert --uri content://lineagesettings/system --bind name:s:status_bar_show_battery_percent --bind value:i:2
+elif [ "$MODE" = "capsule" ]; then
+    content insert --uri content://lineagesettings/system --bind name:s:status_bar_battery_style --bind value:i:0
+    content insert --uri content://lineagesettings/system --bind name:s:status_bar_show_battery_percent --bind value:i:1
 fi
 
 AAPT2="/data/local/tmp/bin/aapt2"
@@ -60,7 +66,7 @@ SYSUI="/system/system_ext/priv-app/SystemUI/SystemUI.apk"
 
 "$AAPT2" compile --dir "$TMP/systemui/res" -o "$TMP/systemui_res.zip"
 "$AAPT2" link --min-sdk-version 31 --target-sdk-version 34 -o "$TMP/out/bat_sysui_raw.apk" -I "$FRAMEWORK" -I "$SYSUI" --manifest "$TMP/systemui/AndroidManifest.xml" "$TMP/systemui_res.zip"
-"$ZIPALIGN" -f 4 "$TMP/out/bat_sysui_raw.apk" /data/adb/modules/pixel_status_icons/system/product/overlay/PixelBatterySystemUIOverlay.apk
-chmod 644 /data/adb/modules/pixel_status_icons/system/product/overlay/PixelBatterySystemUIOverlay.apk
+"$ZIPALIGN" -f 4 "$TMP/out/bat_sysui_raw.apk" "$TMP/out/bat_sysui_aligned.apk"
+cp -f "$TMP/out/bat_sysui_aligned.apk" /data/adb/modules/pixel_status_icons/system/product/overlay/PixelBatterySystemUIOverlay.apk || true
 
 pkill -f com.android.systemui

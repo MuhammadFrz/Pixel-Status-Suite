@@ -76,11 +76,7 @@ public class MainActivity extends Activity {
 
     private void runSu(String cmd) {
         try {
-            Process p = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(p.getOutputStream());
-            os.writeBytes(cmd + "\n");
-            os.writeBytes("exit\n");
-            os.flush();
+            Process p = Runtime.getRuntime().exec(new String[]{"su", "-mm", "-c", cmd});
             p.waitFor();
         } catch (Exception e) {
             e.printStackTrace();

@@ -468,13 +468,20 @@
                     </svg>
                 </div>
 
-                <!-- Custom Battery Capsule (Requested Style) -->
+                <!-- Circle Ring Battery (Requested Style) -->
                 <div class="battery-container" id="previewBattery">
-                    <div class="battery-capsule" id="capsuleElem">
-                        <div class="battery-fill" id="fillElem"></div>
-                        <div class="battery-text-inside" id="batteryInsideText">67</div>
+                    <div id="circleBatteryPreview" style="display:flex; align-items:center; gap:5px;">
+                        <svg id="circleRingSvg" width="18" height="18" viewBox="0 0 24 24" style="transform: rotate(-90deg);">
+                            <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.25)" stroke-width="3" fill="none" />
+                            <circle cx="12" cy="12" r="9" stroke="#ffffff" stroke-width="3" fill="none" stroke-dasharray="56.5" stroke-dashoffset="19.7" stroke-linecap="round" />
+                        </svg>
+                        <span id="circleBatteryText" style="font-size:13.5px; font-weight:700; color:#ffffff; letter-spacing:-0.2px;">65%</span>
                     </div>
-                    <span class="battery-text-outside" id="batteryOutsideText" style="display:none;">67%</span>
+                    <div class="battery-capsule" id="capsuleElem" style="display:none;">
+                        <div class="battery-fill" id="fillElem"></div>
+                        <div class="battery-text-inside" id="batteryInsideText">65</div>
+                    </div>
+                    <span class="battery-text-outside" id="batteryOutsideText" style="display:none;">65%</span>
                 </div>
             </div>
         </div>
@@ -501,11 +508,14 @@
                 </div>
                 <span class="icon-box-title">Pixel 4-Bar</span>
             </div>
-            <div class="icon-box" onclick="showIconDetails('Battery Capsule', 'Horizontal pill capsule with high-contrast inside percentage.')">
+            <div class="icon-box" onclick="showIconDetails('Circle Ring Battery', 'Circular progress ring meter with adjacent percentage text matching reference.')">
                 <div class="icon-box-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M17 7H4C2.34 7 1 8.34 1 10v4c0 1.66 1.34 3 3 3h13c1.66 0 3-1.34 3-3v-1h1.5c.83 0 1.5-.67 1.5-1.5v-1c0-.83-.67-1.5-1.5-1.5H20v-1c0-1.66-1.34-3-3-3zm1 7c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h13c.55 0 1 .45 1 1v4zm-5-3.5H5c-.28 0-.5.22-.5.5v2c0 .28.22.5.5.5h8c.28 0 .5-.22.5-.5v-2c0-.28-.22-.5-.5-.5z"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" style="transform: rotate(-90deg);">
+                        <circle cx="12" cy="12" r="8" stroke="rgba(158,202,255,0.3)" stroke-width="3" fill="none" />
+                        <circle cx="12" cy="12" r="8" stroke="var(--primary)" stroke-width="3" fill="none" stroke-dasharray="50.2" stroke-dashoffset="17.5" stroke-linecap="round" />
+                    </svg>
                 </div>
-                <span class="icon-box-title">Battery Capsule</span>
+                <span class="icon-box-title">Circle Ring</span>
             </div>
             <div class="icon-box" onclick="showIconDetails('Silent Bell', 'Clean slash bell indicator for silent sound profile.')">
                 <div class="icon-box-icon">
@@ -562,31 +572,22 @@
             <input type="range" id="sliderIconScale" min="70" max="130" value="100">
         </div>
 
-        <!-- Battery Width -->
+        <!-- Battery Size -->
         <div class="control-row">
             <div class="control-header">
-                <span>Battery Capsule Width</span>
-                <span class="control-value" id="valBatWidth">26 dp</span>
+                <span>Battery Ring / Icon Size</span>
+                <span class="control-value" id="valBatWidth">16 dp</span>
             </div>
-            <input type="range" id="sliderBatWidth" min="18" max="34" value="26">
-        </div>
-
-        <!-- Battery Height -->
-        <div class="control-row">
-            <div class="control-header">
-                <span>Battery Capsule Height</span>
-                <span class="control-value" id="valBatHeight">13 dp</span>
-            </div>
-            <input type="range" id="sliderBatHeight" min="10" max="17" value="13">
+            <input type="range" id="sliderBatWidth" min="12" max="22" value="16">
         </div>
 
         <!-- Icon Cluster Spacing -->
         <div class="control-row">
             <div class="control-header">
                 <span>Cluster Spacing / Padding</span>
-                <span class="control-value" id="valSpacing">8 dp</span>
+                <span class="control-value" id="valSpacing">6 dp</span>
             </div>
-            <input type="range" id="sliderSpacing" min="2" max="16" value="8">
+            <input type="range" id="sliderSpacing" min="2" max="16" value="6">
         </div>
     </div>
 
@@ -599,14 +600,14 @@
             Battery Meter Style
         </div>
         <div class="style-options">
-            <div class="style-btn active" id="btnCapsule" onclick="setBatteryMode('capsule')">
-                Horizontal Pill (iOS)
+            <div class="style-btn active" id="btnCircle" onclick="setBatteryMode('circle')">
+                Circle Ring
             </div>
             <div class="style-btn" id="btnPortrait" onclick="setBatteryMode('portrait')">
                 Pixel Portrait (M3)
             </div>
-            <div class="style-btn" id="btnCircle" onclick="setBatteryMode('circle')">
-                Circle Ring
+            <div class="style-btn" id="btnCapsule" onclick="setBatteryMode('capsule')">
+                Horizontal Pill
             </div>
         </div>
     </div>
@@ -629,27 +630,27 @@
         // State
         const state = {
             iconScale: 100,
-            batWidth: 26,
-            batHeight: 13,
-            spacing: 8,
-            batteryMode: 'capsule' // capsule, portrait, circle
+            batWidth: 16,
+            batHeight: 16,
+            spacing: 6,
+            batteryMode: 'circle'
         };
 
         // DOM elements
         const sliderIconScale = document.getElementById('sliderIconScale');
         const sliderBatWidth = document.getElementById('sliderBatWidth');
-        const sliderBatHeight = document.getElementById('sliderBatHeight');
         const sliderSpacing = document.getElementById('sliderSpacing');
 
         const valIconScale = document.getElementById('valIconScale');
         const valBatWidth = document.getElementById('valBatWidth');
-        const valBatHeight = document.getElementById('valBatHeight');
         const valSpacing = document.getElementById('valSpacing');
 
         const previewWifi = document.getElementById('previewWifi');
         const previewSignal = document.getElementById('previewSignal');
         const previewBell = document.getElementById('previewBell');
         const previewCluster = document.getElementById('previewCluster');
+        const circleBatteryPreview = document.getElementById('circleBatteryPreview');
+        const circleRingSvg = document.getElementById('circleRingSvg');
         const capsuleElem = document.getElementById('capsuleElem');
         const batteryInsideText = document.getElementById('batteryInsideText');
         const batteryOutsideText = document.getElementById('batteryOutsideText');
@@ -664,13 +665,8 @@
 
         sliderBatWidth.addEventListener('input', (e) => {
             state.batWidth = parseInt(e.target.value);
+            state.batHeight = state.batWidth;
             valBatWidth.textContent = `${state.batWidth} dp`;
-            updatePreview();
-        });
-
-        sliderBatHeight.addEventListener('input', (e) => {
-            state.batHeight = parseInt(e.target.value);
-            valBatHeight.textContent = `${state.batHeight} dp`;
             updatePreview();
         });
 
@@ -691,32 +687,31 @@
             previewCluster.style.setProperty('--cluster-gap', `${state.spacing}px`);
 
             // Battery style
-            if (state.batteryMode === 'capsule') {
+            if (state.batteryMode === 'circle') {
+                circleBatteryPreview.style.display = 'flex';
+                circleRingSvg.style.width = `${state.batWidth}px`;
+                circleRingSvg.style.height = `${state.batWidth}px`;
+                capsuleElem.style.display = 'none';
+                batteryOutsideText.style.display = 'none';
+            } else if (state.batteryMode === 'capsule') {
+                circleBatteryPreview.style.display = 'none';
                 capsuleElem.style.display = 'flex';
-                capsuleElem.style.width = `${state.batWidth}px`;
-                capsuleElem.style.height = `${state.batHeight}px`;
-                capsuleElem.style.borderRadius = `${state.batHeight / 3}px`;
+                capsuleElem.style.width = `${state.batWidth * 1.6}px`;
+                capsuleElem.style.height = `${state.batWidth * 0.8}px`;
+                capsuleElem.style.borderRadius = `${(state.batWidth * 0.8) / 3}px`;
                 capsuleElem.style.border = '1.5px solid #ffffff';
                 capsuleElem.className = 'battery-capsule';
-                fillElem.style.width = '67%';
+                fillElem.style.width = '65%';
                 fillElem.style.height = '100%';
                 batteryInsideText.style.display = 'block';
                 batteryOutsideText.style.display = 'none';
             } else if (state.batteryMode === 'portrait') {
+                circleBatteryPreview.style.display = 'none';
                 capsuleElem.style.display = 'flex';
                 capsuleElem.style.width = `11px`;
                 capsuleElem.style.height = `18px`;
                 capsuleElem.style.borderRadius = `2px`;
                 capsuleElem.className = 'battery-capsule';
-                batteryInsideText.style.display = 'none';
-                batteryOutsideText.style.display = 'inline';
-            } else if (state.batteryMode === 'circle') {
-                capsuleElem.style.display = 'flex';
-                capsuleElem.style.width = `16px`;
-                capsuleElem.style.height = `16px`;
-                capsuleElem.style.borderRadius = `50%`;
-                capsuleElem.style.border = '2px solid #ffffff';
-                fillElem.style.display = 'none';
                 batteryInsideText.style.display = 'none';
                 batteryOutsideText.style.display = 'inline';
             }
@@ -725,30 +720,28 @@
         function setBatteryMode(mode) {
             state.batteryMode = mode;
             document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
-            if (mode === 'capsule') document.getElementById('btnCapsule').classList.add('active');
-            if (mode === 'portrait') document.getElementById('btnPortrait').classList.add('active');
             if (mode === 'circle') document.getElementById('btnCircle').classList.add('active');
+            if (mode === 'portrait') document.getElementById('btnPortrait').classList.add('active');
+            if (mode === 'capsule') document.getElementById('btnCapsule').classList.add('active');
             updatePreview();
         }
 
         function resetDefaults() {
             state.iconScale = 100;
-            state.batWidth = 26;
-            state.batHeight = 13;
-            state.spacing = 8;
-            state.batteryMode = 'capsule';
+            state.batWidth = 16;
+            state.batHeight = 16;
+            state.spacing = 6;
+            state.batteryMode = 'circle';
 
             sliderIconScale.value = 100;
-            sliderBatWidth.value = 26;
-            sliderBatHeight.value = 13;
-            sliderSpacing.value = 8;
+            sliderBatWidth.value = 16;
+            sliderSpacing.value = 6;
 
             valIconScale.textContent = '100%';
-            valBatWidth.textContent = '26 dp';
-            valBatHeight.textContent = '13 dp';
-            valSpacing.textContent = '8 dp';
+            valBatWidth.textContent = '16 dp';
+            valSpacing.textContent = '6 dp';
 
-            setBatteryMode('capsule');
+            setBatteryMode('circle');
             showToast('Reset to defaults');
         }
 

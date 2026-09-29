@@ -1,6 +1,6 @@
 id=pixel_status_icons
 name=Pixel Status Suite
-version=v1.0
-versionCode=100
+version=v1.1
+versionCode=101
 author=MuhammadFrz
-description=All-in-one Pixel status bar icon suite (Wi-Fi, 4-bar mobile, silent bell, vibrate, alarm, VPN, DND) and customizable horizontal capsule battery with inside percentage.
+description=All-in-one Pixel status bar icon suite (Pixel Wi-Fi, 4-bar mobile, silent bell, vibrate, alarm, VPN, DND) and Circle Ring battery meter with outside percentage text.
